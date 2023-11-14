@@ -27,13 +27,14 @@
 
 ## Possible unit tests for ProcessPDF class
 
-1. ProcessPDFTest.php
-    A. can_get_a_file_name_attribute - assert matches string
-    B. can_get_a_file_path_attribute - assert matches string
-    C. cannot_get_a_file_name_attribute_if_file_is_incorrect_type - assert matches string
-    D. cannot_get_a_file_path_attribute_if_file_does_not_exist - assert matches string
-    E. can_get_aws_implementation_when_set_in_project_config - assert true for expected cloud service
-    F. cannot_get_aws_implementation_when_alternative_service_is_set_in_project_config - assert false
-    G. can_get_file_instance_from_locally_store_file - assert true on file_exists()
-    H. can_get_cloud_service_cloud_instance - assert file with filename is returned which matches local version
-    I. can_get_extracted_content_from_pdf_file - assert matches string
+### ProcessPDFTest.php
+
+1. can_get_a_file_name_attribute - assert matches string
+2. can_get_a_file_path_attribute - assert matches string
+3. cannot_get_a_file_name_attribute_if_file_is_incorrect_type - assert matches string
+4. cannot_get_a_file_path_attribute_if_file_does_not_exist - assert matches string
+5. can_get_aws_implementation_when_set_in_project_config - assert true for expected cloud service
+6. cannot_get_aws_implementation_when_alternative_service_is_set_in_project_config - assert false
+7. can_get_file_instance_from_locally_store_file - assert true on file_exists()
+8. can_get_cloud_service_cloud_instance - assert file with filename is returned which matches local version
+9. can_get_extracted_content_from_pdf_file - assert matches string
