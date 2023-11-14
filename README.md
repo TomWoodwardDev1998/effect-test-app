@@ -1,66 +1,39 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## This project
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+- A good way to reflect on this little project would be on my current lack of knowledge with AWS. The setup was time consuming for me and in the end an error surrounding the `startDocumentTextDetection` function DocumentLocation parameters has restricted me from making any further progress.
+- The exposure has been a nice eye opener, as its allowed me to store files into an S3 bucket which is something I've nt done for a couple of years.
 
-## About Laravel
+## The code
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- The `UploadTest` feature tests mocks request to a route to try and upload a PDF to S3 and then extract the content.
+- The tests checks to see if the content and time of the upload is recoreded into a pdf_uploads table `PDFUpload.php`.
+- A test also checks for a null pdf value, this should be caught in a custom request file `StorePDFContentRequest.php` meaning the logic in the controller isn't hit without a file being present and of the correct format `ProcessPDFController.php`.
+- The `ProcessPDFController` is a single action controller to try and follow the single responsibility principle
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Later Additions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Considering the extraction was successful, the logic for it which is currently in the controller could be removed and encapsulated into a class of its own so the controller only ever reads the data, passes it to the class and returns a response.
+- We could use the bridge pattern here and pass a service to the class defined in a config then based on which service has been passed in use their implementation for storing and extracting files.
 
-## Learning Laravel
+- As we are interacting with an API, we may benefit from the use of a response handler class, this way we can wrap responses in appropriate formsts for the end user and handle errors without a user being greeted with a 500 error.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- If we were to go down the route of a class (ProcessPDF) for the file storage and extraction implementation we would require it to hold different properties and functions:
+    - a file property
+    - a file property could be split into path and name attributes
+    - a service property - which could possibly accept a string of either `aws` or `azure`
+    - a storeFileLocally() function
+    - a storeFileToCloud() function
+    - a extractFileContent() function
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Possible unit tests for ProcessPDF class
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. ProcessPDFTest.php
+    A. can_get_a_file_name_attribute - assert matches string
+    B. can_get_a_file_path_attribute - assert matches string
+    C. cannot_get_a_file_name_attribute_if_file_is_incorrect_type - assert matches string
+    D. cannot_get_a_file_path_attribute_if_file_does_not_exist - assert matches string
+    E. can_get_aws_implementation_when_set_in_project_config - assert true for expected cloud service
+    F. cannot_get_aws_implementation_when_alternative_service_is_set_in_project_config - assert false
+    G. can_get_file_instance_from_locally_store_file - assert true on file_exists()
+    H. can_get_cloud_service_cloud_instance - assert file with filename is returned which matches local version
+    I. can_get_extracted_content_from_pdf_file - assert matches string
